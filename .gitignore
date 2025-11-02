@@ -1,0 +1,49 @@
+# Build results
+bin/
+obj/
+out/
+
+# Visual Studio / Rider / VS Code
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vscode/
+
+# DotNet
+*.dotCover
+*.ncrunch*
+*.ReSharper*
+*_ReSharper.*
+
+# Rider
+.idea/
+
+# Logs
+*.log
+
+# Database
+*.mdf
+*.ldf
+*.sqlite
+*.db
+
+# NuGet
+*.nupkg
+packages/
+*.snupkg
+
+# Publish / Deployment
+*.Publish.xml
+publish/
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# ASP.NET Core
+appsettings.Development.json
+appsettings.Local.json
+
+# MAUI / Xamarin
