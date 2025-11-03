@@ -16,9 +16,21 @@ public partial class Maree
     [Column("maree_coefficient")]
     public int MareeCoefficient { get; set; }
 
+    [Column("maree_heure")]
+    public TimeOnly MareeHeure { get; set; }
+
+    [Column("maree_date")]
+    public DateOnly MareeDate { get; set; }
+
     [Column("maree_moment")]
     public bool MareeMoment { get; set; }
 
-    [InverseProperty("Maree")]
-    public virtual ICollection<Prevision> Previsions { get; set; } = new List<Prevision>();
+    [Column("maree_hauteur")]
+    public double MareeHauteur { get; set; }
+
+    [ForeignKey(nameof(SpotId))]
+    public int SpotId { get; set; }
+
+    [InverseProperty("Marees")]
+    public virtual Spot Spot { get; set; } = null;
 }

@@ -30,7 +30,7 @@ namespace SurfLib.Controllers
         }
 
         // Get api/spots/{cityName}
-        [HttpGet("{cityName}", Name = "GetSpotByName")]
+        [HttpGet("{cityName}", Name = nameof(GetSpotByName))]
         public async Task<IActionResult> GetSpotByName(string cityName)
         {
             Spot? spot = _service.GetSpotByName(cityName);
@@ -51,15 +51,17 @@ namespace SurfLib.Controllers
 
             var newSpot = new Spot
             {
-                SpotName = cityInfo.CityName, 
+                SpotName = cityInfo.CityName.ToLower(),
                 SpotLat = cityInfo.Latitude,
                 SpotLon = cityInfo.Longitude,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = null
             };
 
 
             _service.AddSpot(newSpot);
 
-            return CreatedAtRoute("GetSpotNyName", new { cityName = newSpot.SpotName }, _mapper.Map<SpotsDTO>(newSpot));
+            return CreatedAtRoute(nameof(GetSpotByName), new { cityName = newSpot.SpotName }, _mapper.Map<SpotsDTO>(newSpot));
         }
     }
 }

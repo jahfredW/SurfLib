@@ -12,8 +12,8 @@ using SurfLib.Data.Models;
 namespace SurfLib.Migrations
 {
     [DbContext(typeof(SurfDbContext))]
-    [Migration("20251102125400_PrevisionUpdate")]
-    partial class PrevisionUpdate
+    [Migration("20251103211041_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,48 +38,31 @@ namespace SurfLib.Migrations
                         .HasColumnType("int")
                         .HasColumnName("maree_coefficient");
 
+                    b.Property<DateOnly>("MareeDate")
+                        .HasColumnType("date")
+                        .HasColumnName("maree_date");
+
+                    b.Property<double>("MareeHauteur")
+                        .HasColumnType("float")
+                        .HasColumnName("maree_hauteur");
+
+                    b.Property<TimeOnly>("MareeHeure")
+                        .HasColumnType("time")
+                        .HasColumnName("maree_heure");
+
                     b.Property<bool>("MareeMoment")
                         .HasColumnType("bit")
                         .HasColumnName("maree_moment");
 
+                    b.Property<int>("SpotId")
+                        .HasColumnType("int");
+
                     b.HasKey("MareeId")
                         .HasName("PK__maree__78B12A65FE2A31BD");
 
+                    b.HasIndex("SpotId");
+
                     b.ToTable("maree");
-                });
-
-            modelBuilder.Entity("SurfLib.Data.Models.Prevision", b =>
-                {
-                    b.Property<int>("SpotId")
-                        .HasColumnType("int")
-                        .HasColumnName("spot_id");
-
-                    b.Property<int>("MareeId")
-                        .HasColumnType("int")
-                        .HasColumnName("maree_id");
-
-                    b.Property<TimeOnly>("PrevisionHeure")
-                        .HasColumnType("time")
-                        .HasColumnName("prevision_heure");
-
-                    b.Property<DateOnly>("PrevisionDate")
-                        .HasColumnType("date")
-                        .HasColumnName("prevision_date");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("SpotId", "MareeId", "PrevisionHeure", "PrevisionDate")
-                        .HasName("PK__previsio__77856B2E4A745E31");
-
-                    b.HasIndex("MareeId");
-
-                    b.ToTable("previsions");
                 });
 
             modelBuilder.Entity("SurfLib.Data.Models.Spot", b =>
@@ -91,12 +74,16 @@ namespace SurfLib.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SpotId"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
                     b.Property<decimal>("SpotLat")
-                        .HasColumnType("decimal(15, 6)")
+                        .HasColumnType("decimal(15, 7)")
                         .HasColumnName("spot_lat");
 
                     b.Property<decimal>("SpotLon")
-                        .HasColumnType("decimal(15, 6)")
+                        .HasColumnType("decimal(15, 7)")
                         .HasColumnName("spot_lon");
 
                     b.Property<string>("SpotName")
@@ -105,42 +92,33 @@ namespace SurfLib.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("spot_name");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("updated_at");
+
                     b.HasKey("SpotId")
                         .HasName("PK__spot__330AF0F66245A61D");
 
-                    b.HasIndex(new[] { "SpotName" }, "UQ__spot__8BF62491B7D336C7")
+                    b.HasIndex(new[] { "SpotName", "SpotLat", "SpotLon" }, "UQ_spot_name_lat_lon")
                         .IsUnique();
 
                     b.ToTable("spot");
                 });
 
-            modelBuilder.Entity("SurfLib.Data.Models.Prevision", b =>
+            modelBuilder.Entity("SurfLib.Data.Models.Maree", b =>
                 {
-                    b.HasOne("SurfLib.Data.Models.Maree", "Maree")
-                        .WithMany("Previsions")
-                        .HasForeignKey("MareeId")
-                        .IsRequired()
-                        .HasConstraintName("FK__prevision__maree__3D5E1FD2");
-
                     b.HasOne("SurfLib.Data.Models.Spot", "Spot")
-                        .WithMany("Previsions")
+                        .WithMany("Marees")
                         .HasForeignKey("SpotId")
-                        .IsRequired()
-                        .HasConstraintName("FK__prevision__spot___3C69FB99");
-
-                    b.Navigation("Maree");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Spot");
                 });
 
-            modelBuilder.Entity("SurfLib.Data.Models.Maree", b =>
-                {
-                    b.Navigation("Previsions");
-                });
-
             modelBuilder.Entity("SurfLib.Data.Models.Spot", b =>
                 {
-                    b.Navigation("Previsions");
+                    b.Navigation("Marees");
                 });
 #pragma warning restore 612, 618
         }

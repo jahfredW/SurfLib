@@ -17,8 +17,6 @@ public partial class SurfDbContext : DbContext
 
     public virtual DbSet<Maree> Marees { get; set; }
 
-    public virtual DbSet<Prevision> Previsions { get; set; }
-
     public virtual DbSet<Spot> Spots { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -31,18 +29,6 @@ public partial class SurfDbContext : DbContext
             entity.HasKey(e => e.MareeId).HasName("PK__maree__78B12A65FE2A31BD");
         });
 
-        modelBuilder.Entity<Prevision>(entity =>
-        {
-            entity.HasKey(e => new { e.SpotId, e.MareeId, e.PrevisionHeure, e.PrevisionDate }).HasName("PK__previsio__77856B2E4A745E31");
-
-            entity.HasOne(d => d.Maree).WithMany(p => p.Previsions)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__prevision__maree__3D5E1FD2");
-
-            entity.HasOne(d => d.Spot).WithMany(p => p.Previsions)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__prevision__spot___3C69FB99");
-        });
 
         modelBuilder.Entity<Spot>(entity =>
         {

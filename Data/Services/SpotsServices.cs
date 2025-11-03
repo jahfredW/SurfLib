@@ -41,7 +41,9 @@ namespace SurfLib.Data.Services
         public Spot? GetSpotByName(string name)
         {
 
-            return _context?.Spots.FirstOrDefault(s => s.SpotName.ToUpper() == name.ToUpper());
+            return _context?.Spots
+                .Include(s => s.Marees)
+                .FirstOrDefault(s => s.SpotName.ToUpper() == name.ToUpper());
         }
 
         // Get All Spot
@@ -51,7 +53,7 @@ namespace SurfLib.Data.Services
         }
 
         // Update un spot
-        public void SpotUpdate(Spot spot)
+        public async Task SpotUpdateAsync(Spot spot)
         {
             // test si spot null 
             if (spot == null) throw new ArgumentNullException(nameof(spot));
@@ -64,9 +66,11 @@ namespace SurfLib.Data.Services
                 spotToUpdate.SpotName = spot.SpotName;
                 spotToUpdate.SpotLat = spot.SpotLat;
                 spotToUpdate.SpotLon = spot.SpotLon;
+                spotToUpdate.UpdatedAt = spot.UpdatedAt;
 
-                _context.Update(spotToUpdate);
-                _context.SaveChanges();
+                // Pas besoin de update car l'entité est déja suivie par 'context', elle a déja été récupérée. 
+                //_context.Update(spotToUpdate);
+                await _context.SaveChangesAsync();
             }
         }
 
