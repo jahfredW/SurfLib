@@ -63,7 +63,8 @@ namespace SurfLib.Controllers
             // 2️⃣ Récupération des marées
             var mareesList = spot.Marees?.ToList() ?? new List<Maree>();
 
-            bool hasMarees = mareesList.Any();
+            // A corriger ici pour rechercher la liste des marées dont au moins un horaire est null ou hauteur d'eau nulle
+            bool hasMarees = mareesList.Any() && mareesList.Any(maree => maree.MareeHeure == default || maree.MareeHauteur == 0);
             bool isFresh = spot.UpdatedAt.HasValue && spot.UpdatedAt.Value > purgeDate;
 
             if (hasMarees && isFresh)
@@ -78,7 +79,10 @@ namespace SurfLib.Controllers
             }
 
             // 4️⃣ Scrapping des nouvelles marées
-            IEnumerable<Maree> mareeList = await _mareeScrapper.GetDocument(spot);
+            // scrapping jusqu'à ce qu'un horaire soit remonté
+            List<Maree> mareeList = new List<Maree>();
+
+            mareeList = (await _mareeScrapper.GetDocument(spot)).ToList();
 
             // ⚠️ Ne jamais mettre le Spot directement dans les marées pour éviter la boucle
             var mareesDTO = _mapper.Map<IEnumerable<MareeDTO>>(mareeList);
