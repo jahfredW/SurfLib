@@ -20,7 +20,9 @@ public partial class SurfDbContext : DbContext
     public virtual DbSet<Spot> Spots { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=Default");
+    {
+        //optionsBuilder.UseSqlServer("Name=SQLServer");
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

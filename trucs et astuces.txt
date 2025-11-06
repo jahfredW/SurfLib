@@ -1,0 +1,2 @@
+dans un service on utilise async - await et on retourne l'objet
+Dans un contrôleur, on renvoie un Iaction ou Task<IAction> (asynchrone) avec une réponse http (Ok, Not found etc).

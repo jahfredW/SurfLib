@@ -23,6 +23,7 @@ namespace MediumLib
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             //builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddOpenApi();
             builder.Services.AddSwaggerGen();
 
             // Attention ne pas oublier d'installer la dépendance d'injection de dépendance 
@@ -37,7 +38,8 @@ namespace MediumLib
             builder.Services.AddHttpClient<MareeScrapper>();
 
             builder.Services.AddDbContext<SurfDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+            //options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+            options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
             //.UseLazyLoadingProxies()
 
             var app = builder.Build();

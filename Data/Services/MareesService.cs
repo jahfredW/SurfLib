@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SurfLib.Data.Models;
 
 namespace SurfLib.Data.Services
@@ -58,9 +59,9 @@ namespace SurfLib.Data.Services
         }
 
         // Get All Marees
-        public IEnumerable<Maree> GetAllMarees()
+        public async Task<List<Maree>> GetAllMarees()
         {
-            return _context.Marees.ToList();
+            return await _context.Marees.ToListAsync();
         }
 
         // Update une Maree

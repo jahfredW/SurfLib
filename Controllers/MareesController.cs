@@ -31,6 +31,15 @@ namespace SurfLib.Controllers
             _mapper = mapper;
         }
 
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllMaree()
+        {
+            return Ok(await _mareesService.GetAllMarees());
+        }
+
+
         [HttpGet("{cityName}", Name = nameof(GetMareesBySpotName))]
         public async Task<IActionResult> GetMareesBySpotName(string cityName)
         {
@@ -62,10 +71,14 @@ namespace SurfLib.Controllers
 
             // 2️⃣ Récupération des marées
             var mareesList = spot.Marees?.ToList() ?? new List<Maree>();
+            
+            mareesList.ForEach(maree => Console.WriteLine(maree.MareeHeure));
 
             // A corriger ici pour rechercher la liste des marées dont au moins un horaire est null ou hauteur d'eau nulle
-            bool hasMarees = mareesList.Any() && mareesList.Any(maree => maree.MareeHeure == default || maree.MareeHauteur == 0);
-            bool isFresh = spot.UpdatedAt.HasValue && spot.UpdatedAt.Value > purgeDate;
+            bool hasMarees = mareesList.Any() && mareesList.All(maree => maree.MareeHeure != TimeOnly.MinValue && maree.MareeHauteur != 0);
+            bool hasPartialMarees = mareesList.Any() && mareesList.Any(maree => maree.MareeHeure == TimeOnly.MinValue || maree.MareeHauteur == 0);
+            //bool isFresh = spot.UpdatedAt.HasValue && spot.UpdatedAt.Value > purgeDate;
+            bool isFresh = spot.UpdatedAt.HasValue && spot.UpdatedAt.Value >= DateTime.Today;
 
             if (hasMarees && isFresh)
             {
@@ -73,7 +86,7 @@ namespace SurfLib.Controllers
             }
 
             // 3️⃣ Suppression des anciennes marées
-            if (hasMarees)
+            if (hasMarees || hasPartialMarees)
             {
                 await _mareesService.DeleteMarees(mareesList);
             }

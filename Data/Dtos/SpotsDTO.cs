@@ -14,6 +14,6 @@ namespace SurfLib.Data.Dtos
         public decimal SpotLat { get; set; }
         public decimal SpotLon { get; set; }
 
-        public ICollection<Maree> Marees { get; set; } = new List<Maree>();
+        //public ICollection<MareeDTO> Marees { get; set; } = new List<MareeDTO>();
     }
 }
