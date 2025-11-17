@@ -1,15 +1,16 @@
 ﻿using SurfLib.Data.Dtos;
+using SurfLib.Data.Repositories;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace SurfLib.Data.Services
 {
-    public class CityService
+    public class CityRepository : ICityRepository
     {
         private readonly HttpClient _httpClient;
 
-        public CityService(HttpClient httpClient)
+        public CityRepository(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }

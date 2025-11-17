@@ -11,11 +11,11 @@ namespace SurfLib.Controllers
     [ApiController]
     public class SpotsController : ControllerBase
     {
-        private readonly SpotsServices _service;
+        private readonly SpotRepository _service;
         private readonly IMapper _mapper;
-        private readonly CityService _cityService;
+        private readonly CityRepository _cityService;
 
-        public SpotsController(SpotsServices service, IMapper mapper, CityService cityService)
+        public SpotsController(SpotRepository service, IMapper mapper, CityRepository cityService)
         {
             _service = service;
             _mapper = mapper;

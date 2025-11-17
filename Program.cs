@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using SurfLib.Business;
 using SurfLib.Data;
 using SurfLib.Data.Models;
 using SurfLib.Data.Profiles;
+using SurfLib.Data.Repositories;
 using SurfLib.Data.Services;
 using SurfLib.Utils;
 
@@ -32,14 +34,17 @@ namespace MediumLib
             builder.Services.AddAutoMapper(typeof(Program));
             builder.Services.AddAutoMapper(typeof(MareeProfile));
 
-            builder.Services.AddTransient<SpotsServices>();
-            builder.Services.AddTransient<MareesService>();
-            builder.Services.AddHttpClient<CityService>();
-            builder.Services.AddHttpClient<MareeScrapper>();
+            // Quand quelqu'un demande ISpot, Utilise Spot
+            // Mais SpotRepository n'est pas déclaré en tant que service DI
+            builder.Services.AddTransient<ISpotRepository, SpotRepository>();
+            builder.Services.AddTransient<IMareeRepository, MareeRepository>();
+            builder.Services.AddTransient<IMareeService, MareeService>();
+            builder.Services.AddHttpClient<ICityRepository, CityRepository>();
+            builder.Services.AddHttpClient<IMareeScrapper, MareeScrapper>();
 
             builder.Services.AddDbContext<SurfDbContext>(options =>
-            //options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
-            options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("SQLServer")));
+            //options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite")));
             //.UseLazyLoadingProxies()
 
             var app = builder.Build();
@@ -59,7 +64,6 @@ namespace MediumLib
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

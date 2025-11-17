@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SurfLib.Data.Models;
+using SurfLib.Data.Repositories;
 
 namespace SurfLib.Data.Services
 {
-    public class MareesService
+    public class MareeRepository : IMareeRepository
     {
         private readonly SurfDbContext _context;
 
-        public MareesService(SurfDbContext context)
+        public MareeRepository(SurfDbContext context)
         {
             _context = context;
         }

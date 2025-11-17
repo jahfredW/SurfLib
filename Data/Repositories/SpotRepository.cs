@@ -1,14 +1,15 @@
 ﻿using SurfLib.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using SurfLib.Data.Repositories;
 
 namespace SurfLib.Data.Services
 {
-    public class SpotsServices
+    public class SpotRepository : ISpotRepository
     {
         private readonly SurfDbContext _context;
 
-        public SpotsServices(SurfDbContext context)
+        public SpotRepository(SurfDbContext context)
         {
             _context = context;
         }

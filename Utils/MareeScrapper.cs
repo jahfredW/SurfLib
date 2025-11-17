@@ -8,7 +8,7 @@ using System.Security.Principal;
 
 namespace SurfLib.Utils
 {
-    public class MareeScrapper
+    public class MareeScrapper : IMareeScrapper
     {
 
         private class MareeScrapperDatas

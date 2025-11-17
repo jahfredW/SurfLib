@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SurfLib.Business;
 using SurfLib.Data.Dtos;
 using SurfLib.Data.Models;
+using SurfLib.Data.Repositories;
 using SurfLib.Data.Services;
 using SurfLib.Utils;
 
@@ -11,23 +13,26 @@ namespace SurfLib.Controllers
     [Route("api/[controller]")]
     public class MareesController : ControllerBase
     {
-        private readonly MareeScrapper _mareeScrapper;
-        private readonly SpotsServices _spotsService;
-        private readonly MareesService _mareesService;
-        private readonly CityService _cityService;
+        private readonly IMareeScrapper _mareeScrapper;
+        private readonly ISpotRepository _spotRepository;
+        private readonly IMareeRepository _mareeRepository;
+        private readonly ICityRepository _cityRepository;
+        private readonly IMareeService _mareeService;
         private readonly IMapper _mapper;
 
         public MareesController(
-            SpotsServices spotsService,
+            ISpotRepository spotRepository,
             IMapper mapper,
-            CityService cityService,
-            MareeScrapper mareeScrapper,
-            MareesService mareesService)
+            ICityRepository cityRepository,
+            IMareeScrapper mareeScrapper,
+            IMareeRepository mareeRepository,
+            IMareeService mareeService )
         {
-            _spotsService = spotsService;
-            _mareesService = mareesService;
-            _cityService = cityService;
+            _spotRepository = spotRepository;
+            _mareeRepository = mareeRepository;
+            _cityRepository = cityRepository;
             _mareeScrapper = mareeScrapper;
+            _mareeService = mareeService;
             _mapper = mapper;
         }
 
@@ -36,86 +41,20 @@ namespace SurfLib.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllMaree()
         {
-            return Ok(await _mareesService.GetAllMarees());
+            return Ok(await _mareeRepository.GetAllMarees());
         }
 
 
         [HttpGet("{cityName}", Name = nameof(GetMareesBySpotName))]
         public async Task<IActionResult> GetMareesBySpotName(string cityName)
         {
-            DateTime today = DateTime.Today;
-            DateTime purgeDate = today.AddDays(-5);
 
-            // 1️⃣ Vérification si le spot est en base
-            Spot? spot = _spotsService.GetSpotByName(cityName);
+           List<MareeDTO> mareeList = (await (_mareeService.GetMareesBySpotNameBusinessAsync(cityName))).ToList();
 
-            if (spot == null)
-            {
-                // Utilisation de cityService pour rechercher le spot
-                CityInfoDTO? cityInfoDto = await _cityService.GetCityInfoAsync(cityName);
-                if (cityInfoDto == null)
-                    return NotFound($"Aucune information trouvée pour {cityName}.");
-
-                // Création du spot
-                spot = new Spot
-                {
-                    SpotName = cityInfoDto.CityName,
-                    SpotLat = cityInfoDto.Latitude,
-                    SpotLon = cityInfoDto.Longitude,
-                    CreatedAt = cityInfoDto.CreatedAt,
-                    UpdatedAt = null
-                };
-
-                _spotsService.AddSpot(spot);
-            }
-
-            // 2️⃣ Récupération des marées
-            var mareesList = spot.Marees?.ToList() ?? new List<Maree>();
-            
-            mareesList.ForEach(maree => Console.WriteLine(maree.MareeHeure));
-
-            // A corriger ici pour rechercher la liste des marées dont au moins un horaire est null ou hauteur d'eau nulle
-            bool hasMarees = mareesList.Any() && mareesList.All(maree => maree.MareeHeure != TimeOnly.MinValue && maree.MareeHauteur != 0);
-            bool hasPartialMarees = mareesList.Any() && mareesList.Any(maree => maree.MareeHeure == TimeOnly.MinValue || maree.MareeHauteur == 0);
-            //bool isFresh = spot.UpdatedAt.HasValue && spot.UpdatedAt.Value > purgeDate;
-            bool isFresh = spot.UpdatedAt.HasValue && spot.UpdatedAt.Value >= DateTime.Today;
-
-            if (hasMarees && isFresh)
-            {
-                return Ok(_mapper.Map<IEnumerable<MareeDTO>>(mareesList));
-            }
-
-            // 3️⃣ Suppression des anciennes marées
-            if (hasMarees || hasPartialMarees)
-            {
-                await _mareesService.DeleteMarees(mareesList);
-            }
-
-            // 4️⃣ Scrapping des nouvelles marées
-            // scrapping jusqu'à ce qu'un horaire soit remonté
-            List<Maree> mareeList = new List<Maree>();
-
-            mareeList = (await _mareeScrapper.GetDocument(spot)).ToList();
-
-            // ⚠️ Ne jamais mettre le Spot directement dans les marées pour éviter la boucle
-            var mareesDTO = _mapper.Map<IEnumerable<MareeDTO>>(mareeList);
-            // Attentin ! spot.Marees = marées qui font références au spot -> références circulaires ! 
-            //var mareesDTO = _mapper.Map<IEnumerable<MareeDTO>>(spot.Marees);
-
-            //foreach (var maree in mareeList)
-            //{
-            //    maree.SpotId = spot.SpotId;
-            //}
-
-            spot.UpdatedAt = DateTime.UtcNow;
-            spot.Marees = mareeList.ToList();
-
-            await _spotsService.SpotUpdateAsync(spot);
 
             // Mapping en DTO pour évites les références circulaires (Marées - Spot)
             
-
-            return Ok(mareesDTO);
+            return Ok(mareeList);
         }
     }
 }
